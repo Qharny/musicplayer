@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../theme.dart';
+import '../routes/custom_route.dart';
+import 'select_track_screen.dart';
 
 class NewPlaylistScreen extends StatelessWidget {
   const NewPlaylistScreen({super.key});
@@ -184,7 +186,12 @@ class NewPlaylistScreen extends StatelessWidget {
           ),
           trailing: IconButton(
             icon: const Icon(CupertinoIcons.add, color: Colors.grey),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                CustomPageRoute(page: const SelectTrackScreen()),
+              );
+            },
           ),
         );
       },
