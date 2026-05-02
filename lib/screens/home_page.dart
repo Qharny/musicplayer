@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../theme.dart';
 import '../routes/custom_route.dart';
 import 'new_playlist_screen.dart';
+import 'settings_screen.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -46,7 +47,12 @@ class HomePage extends StatelessWidget {
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.settings, color: Colors.grey),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          CustomPageRoute(page: const SettingsScreen()),
+                        );
+                      },
                     ),
                   ],
                 ),
