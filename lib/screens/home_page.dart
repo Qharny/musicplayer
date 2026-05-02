@@ -1,7 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 import '../theme.dart';
 import '../routes/custom_route.dart';
+import '../services/audio_manager.dart';
 import 'new_playlist_screen.dart';
 import 'settings_screen.dart';
 
@@ -118,54 +121,85 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildSongsList() {
-    final songs = [
-      {'title': 'Midnight City', 'artist': 'M83 • Hurry Up, We\'re Dreaming', 'gradient': const [Color(0xFF2C3E50), Color(0xFF000000)]},
-      {'title': 'Starboy', 'artist': 'The Weeknd • Starboy', 'gradient': const [Color(0xFF141E30), Color(0xFF243B55)]},
-      {'title': 'Resonance', 'artist': 'Home • Odyssey', 'gradient': const [Color(0xFF4B79A1), Color(0xFF283E51)]},
-      {'title': 'Levitating', 'artist': 'Dua Lipa • Future Nostalgia', 'gradient': const [Color(0xFF000000), Color(0xFF434343)]},
-      {'title': 'Ocean Eyes', 'artist': 'Billie Eilish • Don\'t Smile at Me', 'gradient': const [Color(0xFF0F2027), Color(0xFF203A43)]},
-    ];
+    return Consumer<AudioManager>(
+      builder: (context, audioManager, child) {
+        if (!audioManager.hasPermission) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Permissions required to browse music', style: TextStyle(color: Colors.white70)),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.neutralColor),
+                  onPressed: () => audioManager.requestPermission(),
+                  child: const Text('Allow Access', style: TextStyle(color: Colors.black)),
+                ),
+              ],
+            ),
+          );
+        }
 
-    return ListView.builder(
-      padding: const EdgeInsets.only(top: 8, bottom: 90), // Padding for MiniPlayer
-      itemCount: songs.length,
-      itemBuilder: (context, index) {
-        final song = songs[index];
-        return ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          leading: Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4),
-              gradient: LinearGradient(
-                colors: song['gradient'] as List<Color>,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+        if (audioManager.songs.isEmpty) {
+          return const Center(
+            child: Text('No local songs found', style: TextStyle(color: Colors.white70)),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.only(top: 8, bottom: 90),
+          itemCount: audioManager.songs.length,
+          itemBuilder: (context, index) {
+            final song = audioManager.songs[index];
+            return ListTile(
+              onTap: () => audioManager.playSong(index),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              leading: QueryArtworkWidget(
+                id: song.id,
+                type: ArtworkType.AUDIO,
+                nullArtworkWidget: Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF2C3E50), Color(0xFF000000)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: const Icon(Icons.music_note, color: Colors.white24, size: 30),
+                ),
+                artworkWidth: 56,
+                artworkHeight: 56,
+                artworkBorder: BorderRadius.circular(4),
               ),
-            ),
-            child: const Icon(Icons.music_note, color: Colors.white24, size: 30),
-          ),
-          title: Text(
-            song['title'] as String,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: AppTheme.neutralColor,
-            ),
-          ),
-          subtitle: Padding(
-            padding: const EdgeInsets.only(top: 4.0),
-            child: Text(
-              song['artist'] as String,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: Colors.grey.shade500,
+              title: Text(
+                song.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.neutralColor,
+                ),
               ),
-            ),
-          ),
-          trailing: IconButton(
-            icon: const Icon(Icons.more_vert, color: Colors.grey),
-            onPressed: () {},
-          ),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Text(
+                  song.artist ?? 'Unknown Artist',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Colors.grey.shade500,
+                  ),
+                ),
+              ),
+              trailing: IconButton(
+                icon: const Icon(Icons.more_vert, color: Colors.grey),
+                onPressed: () {},
+              ),
+            );
+          },
         );
       },
     );
