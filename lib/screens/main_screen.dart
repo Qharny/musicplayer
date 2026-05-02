@@ -1,7 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 import '../theme.dart';
 import '../routes/custom_route.dart';
+import '../services/audio_manager.dart';
 import 'home_page.dart';
 import 'search_screen.dart';
 import 'now_playing_screen.dart';
@@ -87,132 +90,148 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildMiniPlayer() {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          CustomPageRoute(page: const NowPlayingScreen()),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: const Color(0xFF121212), // Darker grey
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.5),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Top Progress Bar
-            Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    height: 2,
-                    color: AppTheme.neutralColor,
-                  ),
+    return Consumer<AudioManager>(
+      builder: (context, audioManager, child) {
+        final song = audioManager.currentSong;
+        if (song == null) return const SizedBox.shrink();
+
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              CustomPageRoute(page: const NowPlayingScreen()),
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: const Color(0xFF121212),
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.5),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-                Expanded(
-                  flex: 8,
-                  child: Container(
-                    height: 2,
-                    color: Colors.grey.shade800,
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Top Progress Bar
+                if (audioManager.totalDuration.inSeconds > 0)
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: audioManager.currentPosition.inSeconds,
+                        child: Container(
+                          height: 2,
+                          color: AppTheme.neutralColor,
+                        ),
+                      ),
+                      Expanded(
+                        flex: audioManager.totalDuration.inSeconds - audioManager.currentPosition.inSeconds,
+                        child: Container(
+                          height: 2,
+                          color: Colors.grey.shade800,
+                        ),
+                      ),
+                    ],
+                  ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+                  child: Row(
+                    children: [
+                      // Mini Album Art
+                      QueryArtworkWidget(
+                        id: song.id,
+                        type: ArtworkType.AUDIO,
+                        nullArtworkWidget: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: const Center(child: Icon(Icons.music_note, color: Colors.white24, size: 24)),
+                        ),
+                        artworkWidth: 44,
+                        artworkHeight: 44,
+                        artworkBorder: BorderRadius.circular(4),
+                      ),
+                      const SizedBox(width: 12),
+                      // Song Info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              song.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.neutralColor,
+                                fontSize: 14,
+                              ),
+                            ),
+                            Text(
+                              song.artist ?? 'Unknown Artist',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                color: Colors.grey.shade500,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Controls
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: const Icon(CupertinoIcons.backward_end_fill, color: Colors.grey, size: 20),
+                        onPressed: () => audioManager.playPrevious(),
+                      ),
+                      const SizedBox(width: 16),
+                      GestureDetector(
+                        onTap: () => audioManager.togglePlayPause(),
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: AppTheme.neutralColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            audioManager.isPlaying ? CupertinoIcons.pause_fill : CupertinoIcons.play_arrow_solid,
+                            color: Colors.black,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: const Icon(CupertinoIcons.forward_end_fill, color: Colors.grey, size: 20),
+                        onPressed: () => audioManager.playNext(),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-              child: Row(
-                children: [
-                  // Mini Album Art
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Center(
-                      child: Container(
-                        width: 14,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey.shade700, width: 2),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Song Info
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Nocturnal Silence',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.neutralColor,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          'Ether Drift',
-                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: Colors.grey.shade500,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Controls
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    icon: const Icon(CupertinoIcons.backward_end_fill, color: Colors.grey, size: 20),
-                    onPressed: () {},
-                  ),
-                  const SizedBox(width: 16),
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppTheme.neutralColor,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(CupertinoIcons.play_arrow_solid, color: Colors.black, size: 24),
-                  ),
-                  const SizedBox(width: 16),
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    icon: const Icon(CupertinoIcons.forward_end_fill, color: Colors.grey, size: 20),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
