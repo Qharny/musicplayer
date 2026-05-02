@@ -5,6 +5,7 @@ import '../routes/custom_route.dart';
 import 'home_page.dart';
 import 'search_screen.dart';
 import 'now_playing_screen.dart';
+import 'favorite_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -19,7 +20,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _pages = [
     const HomePage(),
     const SearchScreen(),
-    const Center(child: Text('Favorites Page')),
+    const FavoriteScreen(),
   ];
 
   @override
@@ -94,138 +95,123 @@ class _MainScreenState extends State<MainScreen> {
         );
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF161616), // Darker grey
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.5),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-            child: Row(
-              children: [
-                // Mini Album Art
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF141E30), Color(0xFF243B55)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: Center(
-                    child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: const BoxDecoration(
-                        color: AppTheme.neutralColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // Song Info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Midnight Monologue',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.neutralColor,
-                          fontSize: 13,
-                        ),
-                      ),
-                      Text(
-                        'Solaris Echo',
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: Colors.grey.shade500,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Controls
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  icon: const Icon(CupertinoIcons.shuffle, color: Colors.grey, size: 20),
-                  onPressed: () {},
-                ),
-                const SizedBox(width: 12),
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  icon: const Icon(CupertinoIcons.backward_end_fill, color: Colors.grey, size: 20),
-                  onPressed: () {},
-                ),
-                const SizedBox(width: 12),
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: const BoxDecoration(
-                    color: AppTheme.neutralColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(CupertinoIcons.play_arrow_solid, color: Colors.black, size: 18),
-                ),
-                const SizedBox(width: 12),
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  icon: const Icon(CupertinoIcons.forward_end_fill, color: Colors.grey, size: 20),
-                  onPressed: () {},
-                ),
-                const SizedBox(width: 4),
-              ],
+        margin: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: const Color(0xFF121212), // Darker grey
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.5),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-          ),
-          // Progress Bar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: Row(
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Top Progress Bar
+            Row(
               children: [
                 Expanded(
-                  flex: 3,
+                  flex: 2,
                   child: Container(
                     height: 2,
+                    color: AppTheme.neutralColor,
+                  ),
+                ),
+                Expanded(
+                  flex: 8,
+                  child: Container(
+                    height: 2,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+              child: Row(
+                children: [
+                  // Mini Album Art
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.grey.shade700, width: 2),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Song Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Nocturnal Silence',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.neutralColor,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          'Ether Drift',
+                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: Colors.grey.shade500,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Controls
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: const Icon(CupertinoIcons.backward_end_fill, color: Colors.grey, size: 20),
+                    onPressed: () {},
+                  ),
+                  const SizedBox(width: 16),
+                  Container(
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
                       color: AppTheme.neutralColor,
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    child: const Icon(CupertinoIcons.play_arrow_solid, color: Colors.black, size: 24),
                   ),
-                ),
-                Expanded(
-                  flex: 7,
-                  child: Container(
-                    height: 2,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade800,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+                  const SizedBox(width: 16),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: const Icon(CupertinoIcons.forward_end_fill, color: Colors.grey, size: 20),
+                    onPressed: () {},
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-        ],
+          ],
+        ),
       ),
     );
   }
