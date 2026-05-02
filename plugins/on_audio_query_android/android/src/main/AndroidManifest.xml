@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Permission to read media files on the device -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <!-- Permission required on Android 13 (API 33) and above to read media files -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
+    <!-- Permission required on Android 14 (API 34) to read media files -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO_CONTRIBUTOR" />
+
+</manifest>
